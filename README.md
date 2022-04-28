@@ -1,26 +1,29 @@
-# ColBERT
+# Zero-shot Query Contextualization for Conversational Search
 
-### ColBERT is a _fast_ and _accurate_ retrieval model, enabling scalable BERT-based search over large text collections in tens of milliseconds. 
-
+### Code for reproducing the SIGIR '22 paper
 
 <p align="center">
-  <img align="center" src="docs/images/ColBERT-Framework-MaxSim-W370px.png" />
+  <img align="center" src="ZeCo2.pdf" />
 </p>
 <p align="center">
-  <b>Figure 1:</b> ColBERT's late interaction, efficiently scoring the fine-grained similarity between a queries and a passage.
+  <b>:</b> ZeCo<sup>2</sup> contextualizes the user question within the conversation history, but restrict the matching only between question and potential answer.
 </p>
 
-As Figure 1 illustrates, ColBERT relies on fine-grained **contextual late interaction**: it encodes each passage into a **matrix** of token-level embeddings (shown above in blue). Then at search time, it embeds every query into another matrix (shown in green) and efficiently finds passages that contextually match the query using scalable vector-similarity (`MaxSim`) operators.
-
-These rich interactions allow ColBERT to surpass the quality of _single-vector_ representation models, while scaling efficiently to large corpora. You can read more in our papers:
 
 * [**ColBERT: Efficient and Effective Passage Search via Contextualized Late Interaction over BERT**](https://arxiv.org/abs/2004.12832) (SIGIR'20).
-* [**Relevance-guided Supervision for OpenQA with ColBERT**](https://arxiv.org/abs/2007.00814) (TACL'21; to appear).
 
 
 ----
 
-## Installation
+## How to reproduce results:
+
+1. Install colbert 
+2. Corpus indexing: use a ColBERT model checkpoint and see [index your collection](#ColBERT Indexing). Note that preprocessing scripts are available in `/preprocessing`. To make use our pipeline for retrieval and evaluation, you need to convert passage ids to integers and retain a mapping file (`.intmapping`) before indexing.
+3. Retrieve & rerank (pipeline available @ `pipeline.sh`)
+
+For ColBERT-related questions, instructions, etc. please refer to the [original repository (forked from v0.2.0)](https://github.com/stanford-futuredata/ColBERT/tree/efaabb0f8731c7d96a9fe109a125357a9232f7a7)
+
+## ColBERT Installation
 
 ColBERT (currently: [v0.2.0](#releases)) requires Python 3.7+ and Pytorch 1.6+ and uses the [HuggingFace Transformers](https://github.com/huggingface/transformers) library.
 
@@ -79,26 +82,7 @@ colbert.train --amp --doc_maxlen 180 --mask-punctuation --bsize 32 --accum 1 \
 
 You can use one or more GPUs by modifying `CUDA_VISIBLE_DEVICES` and `--nproc_per_node`.
 
-
-## Validation
-
-Before indexing into ColBERT, you can compare a few checkpoints by re-ranking a top-k set of documents per query. This will use ColBERT _on-the-fly_: it will compute document representations _during_ query evaluation.
-
-This script requires the top-k list per query, provided as a tab-separated file whose every line contains a tuple `queryID \t passageID \t rank`, where rank is {1, 2, 3, ...} for each query. The script also accepts the format of MS MARCO's `top1000.dev` and `top1000.eval` and you can optionally supply relevance judgements (qrels) for evaluation. This is a tab-separated file whose every line has a quadruple _<query ID, 0, passage ID, 1>_, like `qrels.dev.small.tsv`.
-
-Example command:
-
-```
-python -m colbert.test --amp --doc_maxlen 180 --mask-punctuation \
---collection /path/to/MSMARCO/collection.tsv \
---queries /path/to/MSMARCO/queries.dev.small.tsv \
---topk /path/to/MSMARCO/top1000.dev  \
---checkpoint /root/to/experiments/MSMARCO-psg/train.py/msmarco.psg.l2/checkpoints/colbert-200000.dnn \
---root /root/to/experiments/ --experiment MSMARCO-psg  [--qrels path/to/qrels.dev.small.tsv]
-```
-
-
-## Indexing
+## ColBERT Indexing
 
 For fast retrieval, indexing precomputes the ColBERT representations of passages.
 
@@ -156,123 +140,4 @@ Some use cases (e.g., building a user-facing search engines) require more contro
 
 * v0.2.0: Sep 2020
 * v0.1.0: June 2020
-
-# Conversational Zero-shot Colbert:
-
-1. Install colbert 
-2. preprocess datasets to tsv using `preprocessing_*` scripts. Make sure to convert passage ids to integers before colbert indexing and keep a mapping (generated `.intmapping` file)
-3. Index datasets by following the Indexing instructions above
-4. Retrieve & rerank (pipeline available @ `pipeline.sh`)
-5. Postprocess runs for each competition/year (merge results from marco/car etc.) using `postprocess_runs.py`
-
-##Indexing 
-Start gpu job & fix env
-```
-srun -c 24 --mem=230gb -p gpu --gres=gpu:4 --time=48:00:00 --exclude=ilps-cn108  --pty bash
-
-source ~/.bash_profile
-conda activate colbert
-cd ~/cqa-rewrite/ColBERT/
-export PYTHONPATH=$PYTHONPATH:$HOME/cqa-rewrite/ColBERT
-```
-
-Generate doc representations and index (from tsv format with integer passageids)
-
-```
-path_root='/home/akrasak/cqa-rewrite/ColBERT/'
-path_model_checkpoint='/ivi/ilps/personal/akrasak/data/models/colbert-400000.dnn'
-path_queries='/ivi/ilps/personal/akrasak/data/collections/car-wiki2020-01-01/Car_collection.tsv.int'
-path_indexes='/ivi/ilps/personal/akrasak/data/faiss_indexes/'
-index_name='CAR.FirstP.L2.32x200k.180len'
-
-CUDA_VISIBLE_DEVICES="0,1,2,3" OMP_NUM_THREADS=8 \
-python -m torch.distributed.launch --nproc_per_node=4 -m \
-colbert.index --root $path_root --amp --doc_maxlen 180 --mask-punctuation --bsize 64 \
---checkpoint $path_model_checkpoint \
---collection $path_queries \
---index_root $path_indexes --index_name $index_name \
---experiment cast19-idx 
-```
-
-FAISS indexing (for e2e retrieval)
-
-```
-python -m colbert.index_faiss \
---index_root $path_indexes --index_name $index_name \
---partitions 32768 --sample 0.1 \
---root $path_root --experiment cast19-idx
-```
-
-## Retrieve/rerank
-
-Retrieval (CAsT 19)
-
-```
-path_queries='/home/akrasak/cqa-rewrite/cast_evaluation/rewrites/2019/1_Original.tsv.raw.queries'
-mask_method_param=' --mask_method last_turn '
-
-CUDA_VISIBLE_DEVICES="0" OMP_NUM_THREADS=6 \
-python -m colbert.retrieve \
---amp --doc_maxlen 180 --mask-punctuation --bsize 256 \
---nprobe 32 --partitions 32768 --faiss_depth 1024 \
---index_root $path_indexes --index_name $index_name \
---checkpoint $path_model_checkpoint \
---root $path_root --experiment cast19-raw --queries $path_queries \
---batch --retrieve_only $mask_method_param
-```
-
-Reranking
-
-```
-filepath_retrieve_output='/home/akrasak/cqa-rewrite/ColBERT/cast19-raw/retrieve.py/2021-06-11_16.30.27/unordered.tsv'
-
-CUDA_VISIBLE_DEVICES="0" OMP_NUM_THREADS=6 \
-python -m colbert.rerank \
---amp --doc_maxlen 180 --mask-punctuation --bsize 256 \
---partitions 32768 \
---index_root $path_indexes --index_name $index_name \
---checkpoint $path_model_checkpoint \
---root $path_root --experiment cast19-raw --queries $path_queries \
---batch --log-scores \
---topk $filepath_retrieve_output
-
-```
-## Post-processing
-
-Merge all runs (from different indexes) and append the corresponding collection format (ie. `CAR_*`, `MARCO_*` etc.) 
-
-```
-mapping1='/ivi/ilps/personal/akrasak/data/collections/cast21sep/wapo.tsv_incomplete.intmapping'
-mapping2='/ivi/ilps/personal/akrasak/data/collections/cast21sep/kilt_knowledgesource.tsv.intmapping'
-mapping3='/ivi/ilps/personal/akrasak/data/collections/cast21sep/msmarco-docs.tsv.intmapping'
-
-ranking1='/path/to/WAPO/ranking.tsv'
-ranking2='/path/to/KILT/ranking.tsv'
-ranking3='/path/to/WAPO/ranking.tsv'
-
-filepath_merged_rank='/home/akrasak/cqa-rewrite/ColBERT/cast19-raw/rerank.py/2021-06-11_16.35.05/ranking.trec.debug'
-
---mapping $mapping1 $mapping2 $mapping3 \
---run $ranking1 $ranking2 $ranking3 \
---filepath_output $filepath_merged_rank `
---run_id mymergedrank `
---topic_len 3
-```
-Note: topic len should be 2 for CAsT19, and 3 for CAsT (inserts a `-` in query ids)
-
-## Evaluation
-For CAsT19:
-```
-
-path_qrel='/ivi/ilps/personal/akrasak/data/cqa-rewrite/qrels/2019qrels_MARCO.txt'
-filepath_rerank_output='/home/akrasak/cqa-rewrite/ColBERT/cast19-raw/rerank.py/2021-06-11_16.35.05/ranking.tsv.corrQid'
-
-trec_eval -m recall.1000 -m map -m recip_rank -m ndcg_cut.3 \
--c $filepath_rerank_output \
-```
-
-
-### Minor implementation details:
-
-- Wapo (CAsT21) was indexed only @ 72% because of a bug in pre-processing trecweb files (line 2768476).
 
