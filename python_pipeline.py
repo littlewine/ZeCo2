@@ -115,10 +115,10 @@ def add_static_args(args):
         args.query_maxlen=32
         args.queries = path_queries[args.dataset]['raw']
         args.mask_method = None
-    elif args.setting=='last_turn':
+    elif args.setting=='ZeCo2':
         args.query_maxlen = 256
         args.queries = path_queries[args.dataset]['full_conv']
-        args.mask_method = 'last_turn'
+        args.mask_method = 'ZeCo2'
     elif args.setting=='allHistory':
         args.query_maxlen = 256
         args.queries = path_queries[args.dataset]['full_conv']
@@ -185,7 +185,7 @@ if __name__ == "__main__":
     # My args
     parser_global.add_argument('--debug', default=False, required=False, action="store_true", help='debugging flag' )
     # parser_global.add_argument('--mask_method', default=None, required=False,
-    #                     choices = [None,'last_turn'],
+    #                     choices = [None,'ZeCo2'],
     #                     help='Do matching only on specific tokens')
 
     # parser_global.add_argument('--query_maxlen', dest='query_maxlen', default=32, type=int)
@@ -198,7 +198,7 @@ if __name__ == "__main__":
     parser_global.add_argument('--dataset', dest='dataset',
                                choices=['cast19', 'cast20','cast21'], required=True)
     parser_global.add_argument('--setting', dest='setting',
-                               choices=['raw', 'last_turn', 'allHistory','human'], required=True)
+                               choices=['raw', 'ZeCo2', 'allHistory','human'], required=True)
     parser_global.add_argument('--nr_expansion_tokens', dest='nr_expansion_tokens',
                                default=10, type=int)
     parser_global.add_argument('--add_CLSQ_tokens', dest='add_CLSQ_tokens', default=False,

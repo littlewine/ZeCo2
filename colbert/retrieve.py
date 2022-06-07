@@ -28,7 +28,7 @@ def main():
 
     parser.add_argument('--debug', default=False, required=False, action="store_true", help='debugging flag' )
     parser.add_argument('--mask_method', default=None, required=False,
-                        choices = [None,'last_turn'],
+                        choices = [None,'ZeCo2'],
                         help='Do matching only on specific tokens')
 
     args = parser.parse()

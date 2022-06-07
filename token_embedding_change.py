@@ -40,7 +40,7 @@ def get_avg_token_changes(args, min_occurences, return_cosine_matrix=False):
 
     inference_lastturn = ModelInference(colbert=args.colbert,
                                add_CLSQ_tokens=False, nr_expansion_tokens=0,
-                               mask_method='last_turn'
+                               mask_method='ZeCo2'
                                )
 
     Q_full = inference.queryFromText(list(queries.full),bsize=512)

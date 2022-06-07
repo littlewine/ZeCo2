@@ -16,7 +16,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description="preprocessing queries.")
+    parser = ArgumentParser(description=".")
 
     parser.add_argument('--collection_filepath', required=True, type=str)
     parser.add_argument('--prefix', required=True, type=str)

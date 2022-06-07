@@ -31,7 +31,7 @@ class ModelInference():
             with self.amp_manager.context():
                 Q = self.colbert.query(*args, **kw_args)
                 input_ids = args[0]
-                if self.mask_method == 'last_turn':
+                if self.mask_method == 'ZeCo2':
                     Q = self.crop_query_tensor(Q, input_ids=input_ids)
                 elif (self.mask_method is None):
                     # handle CLS,Q,[MASK] matching if query cropping is skipped,
@@ -67,7 +67,7 @@ class ModelInference():
     def crop_query_tensor(self, Q, input_ids):
         # https://stackoverflow.com/questions/60891052/how-can-i-trim-a-tensor-based-on-a-mask-with-pytorch
         # https://pytorch.org/docs/stable/generated/torch.masked_select.html
-        assert self.mask_method == 'last_turn'
+        assert self.mask_method == 'ZeCo2'
         cropped_Q_tensors = []
         if self.debug:
             print("Final query tokens/inputIDs to be matched with docs:")
@@ -126,7 +126,7 @@ class ModelInference():
                 Q_mask = torch.cat([torch.zeros_like(Q[:,:2,:]),
                            torch.ones_like(Q[:,2:,:])], dim=1)
 
-        elif self.mask_method == 'last_turn':
+        elif self.mask_method == 'ZeCo2':
             sep_positions = (input_ids == self.query_tokenizer.sep_token_id).nonzero(as_tuple=True)[-1].tolist()
 
             if len(sep_positions) < 2: # No need to mask, take all query

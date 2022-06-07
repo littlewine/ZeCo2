@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
     inference_lastturn = ModelInference(colbert=args.colbert,
                                add_CLSQ_tokens=False, nr_expansion_tokens=0,
-                               mask_method='last_turn'
+                               mask_method='ZeCo2'
                                )
 
     Q_full = inference.queryFromText(list(queries.full),bsize=512)
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         # print("History:\t", inference.bert_tokenizer.decode(ids_history.tolist()))
         # print("Last turn:\t", inference.bert_tokenizer.decode(ids_lastturn[qid].tolist()).replace("[PAD] ",''))
         closest_matches[query_id]['history'] = inference.bert_tokenizer.decode(ids_history.tolist())
-        closest_matches[query_id]['last_turn'] = inference.bert_tokenizer.decode(ids_lastturn[qid].tolist()).replace("[PAD] ",'')
+        closest_matches[query_id]['ZeCo2'] = inference.bert_tokenizer.decode(ids_lastturn[qid].tolist()).replace("[PAD] ",'')
         closest_matches[query_id]['human'] = queries.iloc[qid]['human']
 
         closest_pos_raw, sim_raw = find_closest_embedding(token_vector_raw, Q_hist, skip_identical=False)
