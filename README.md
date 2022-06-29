@@ -3,7 +3,7 @@
 ### Code for reproducing the SIGIR '22 paper
 
 <p align="center">
-  <img align="center" src="ZeCo2.pdf" />
+  <img align="center" src="ZeCo2.png" />
 </p>
 <p align="center">
   <b>:</b> ZeCo<sup>2</sup> contextualizes the user question within the conversation history, but restrict the matching only between question and potential answer.
