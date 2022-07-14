@@ -1,17 +1,27 @@
+Code for reproducing the SIGIR '22 paper
 # Zero-shot Query Contextualization for Conversational Search
-
-### Code for reproducing the SIGIR '22 paper
 
 <p align="center">
   <img align="center" src="ZeCo2.png" />
 </p>
 <p align="center">
-  <b>:</b> ZeCo<sup>2</sup> contextualizes the user question within the conversation history, but restrict the matching only between question and potential answer.
+  Our approach (ZeCo<sup>2</sup>) contextualizes the last user question within the conversation history, but restrict the matching only between question and potential answer.
 </p>
 
+For more details, check our:
 
-* [**ColBERT: Efficient and Effective Passage Search via Contextualized Late Interaction over BERT**](https://arxiv.org/abs/2004.12832) (SIGIR'20).
+SIGIR'22 [poster](SIGIR_2022_poster.pdf) | [paper](https://arxiv.org/abs/2204.10613)
 
+
+```
+@inproceedings{krasakis-2022-zeroshot,
+    author = {Krasakis, Antonios Minas and Yates, Andrew and Kanoulas, Evangelos},
+    booktitle = {SIGIR 2022: 45th international ACM SIGIR Conference on Research and Development in Information Retrieval},
+    month = {July},
+    publisher = {ACM},
+    title = {Zero-shot Query Contextualization for Conversational Search},
+    year = {2022}}
+```
 
 ----
 
@@ -36,3 +46,4 @@ You can already run the analysis since the final rankings are provided under `da
 
 ----
 For ColBERT-related questions, instructions, etc. please refer to the [original repository (forked from v0.2.0)](https://github.com/stanford-futuredata/ColBERT/tree/efaabb0f8731c7d96a9fe109a125357a9232f7a7) or `README_ColBERT.md`, or feel free to raise an issue!
+
