@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-Code for reproducing the SIGIR '22 paper:
-# Zero-shot Query Contextualization for Conversational Search
-
-
-
-=======
 Code for reproducing the SIGIR '22 paper
 # Zero-shot Query Contextualization for Conversational Search
 
@@ -55,9 +48,3 @@ You can already run the analysis since the final rankings are provided under `da
 ----
 
 For ColBERT-related questions, instructions, etc. please refer to the [original repository (forked from v0.2.0)](https://github.com/stanford-futuredata/ColBERT/tree/efaabb0f8731c7d96a9fe109a125357a9232f7a7) or `README_ColBERT.md`, or feel free to raise an issue!
-
-<<<<<<< HEAD
-----
-
-=======
->>>>>>> a2d4a886fc619488a5c5350dcebf702c2bb3b514
