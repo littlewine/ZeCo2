@@ -1,7 +1,6 @@
 Code for reproducing the SIGIR '22 paper
 # Zero-shot Query Contextualization for Conversational Search
 
->>>>>>> a2d4a886fc619488a5c5350dcebf702c2bb3b514
 <p align="center">
   <img align="center" src="ZeCo2.png" />
 </p>
@@ -34,6 +33,8 @@ SIGIR'22 [poster](SIGIR_2022_poster.pdf) | [paper](https://arxiv.org/abs/2204.10
 4. Retrieve & rerank using the available pipeline:
 
 `python_pipeline.py --setting ZeCo2 --dataset cast19`
+
+The ColBERT checkpoint used (trained for 400K steps) is available [here](https://huggingface.co/uva-irlab/ZeCo2)
 
 ### Paper analysis section:
 The two scripts used to reproduce the analysis section of the paper are:
